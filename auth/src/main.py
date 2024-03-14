@@ -1,6 +1,5 @@
 import dataclasses
 from datetime import datetime, timedelta, timezone
-from typing import Annotated
 
 import jwt
 from fastapi import FastAPI, Request, Response
