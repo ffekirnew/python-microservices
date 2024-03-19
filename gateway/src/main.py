@@ -52,3 +52,8 @@ def upload(
         return {"message": "File upload failed"}
 
     return {"message": "File uploaded"}
+
+
+@app.get("/download/{file_id}")
+def download():
+    pass
