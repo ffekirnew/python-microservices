@@ -1,34 +1,14 @@
-import dataclasses
-from datetime import datetime, timedelta, timezone
+from fastapi import Depends, FastAPI
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-import jwt
-from fastapi import FastAPI, Request, Response
-from pydantic import BaseModel
-
-from src.config import config
-from src.db_client import DbClient
+from src.dtos.auth_dto import AuthDto
+from src.entities.user import User
+from src.persistence.db_client import DbClient
+from src.services.jwt import create_jwt, validate_jwt
 
 app = FastAPI()
+security = HTTPBearer()
 auth_db_client = DbClient().get_collection("auth")
-
-
-@dataclasses.dataclass
-class User:
-    username: str
-    password: str
-    _id: str
-
-    @classmethod
-    def from_dict(cls, d):
-        return cls(**d)
-
-    def to_dict(self):
-        return dataclasses.asdict(self)
-
-
-class AuthDto(BaseModel):
-    username: str
-    password: str
 
 
 @app.post("/login")
@@ -55,23 +35,8 @@ async def register(registerDto: AuthDto):
     return {"error": "Try again."}
 
 
-@app.get("/")
-async def test(request: Request, response: Response):
-    header = request.headers.get("Authorization")
+@app.post("/authenticate")
+async def authenticate(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    token = credentials.credentials
 
-    return validate_jwt(header if header is not None else "")
-
-
-def create_jwt(username: str, is_admin: bool) -> str:
-    payload = {
-        "username": username,
-        "exp": datetime.now(tz=timezone.utc) + timedelta(days=1),
-        "iat": datetime.now(tz=timezone.utc),
-        "admin": is_admin,
-    }
-
-    return jwt.encode(payload, config["JWT"]["SECRET"])
-
-
-def validate_jwt(token: str):
-    return jwt.decode(token, config["JWT"]["SECRET"])
+    return validate_jwt(token)
