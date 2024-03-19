@@ -1,7 +1,7 @@
 .phony: build test run
 
 run.dev:
-	@uvicorn src.main:app --reload
+	@uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
 
 run.start:
-	@uvicorn src.main:app
+	@uvicorn src.main:app --host 0.0.0.0 --port 8000

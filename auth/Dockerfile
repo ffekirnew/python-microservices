@@ -1,11 +1,16 @@
 FROM python:3.11-buster
 
+WORKDIR /app
+
 RUN pip install poetry
 
-COPY . .
+COPY pyproject.toml poetry.lock /app/
 
-RUN poetry install
+RUN poetry export --without-hashes --format=requirements.txt > requirements.txt
+RUN pip install --requirement requirements.txt
 
-EXPOSE 5000
+COPY . /app
 
-ENTRYPOINT ["make", "run.start"]
+EXPOSE 8000
+
+ENTRYPOINT ["make", "run.dev"]
