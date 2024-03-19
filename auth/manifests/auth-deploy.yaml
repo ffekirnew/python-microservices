@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: auth
-          image: ffekirnew/auth
+          image: ffekirnew/python-microservices-auth
           ports:
             - containerPort: 5000
           envFrom:
